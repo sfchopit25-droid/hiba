@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hiba ♥</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(ellipse at 50% 45%, #2b0612 0%, #0f0207 55%, #050103 100%);
+    color: #ffd9e2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: 'Noto Sans', 'Segoe UI', system-ui, Arial, sans-serif;
+  }
+
+  .drift { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .drift span {
+    position: absolute; bottom: -40px; color: #ff2d4a; opacity: 0;
+    animation: rise linear infinite;
+  }
+  @keyframes rise {
+    0%   { transform: translateY(0) translateX(0) rotate(-10deg); opacity: 0; }
+    12%  { opacity: .22; }
+    88%  { opacity: .15; }
+    100% { transform: translateY(-112vh) translateX(26px) rotate(14deg); opacity: 0; }
+  }
+
+  .stage {
+    position: relative;
+    width: min(96vw, 84vh, 860px);
+    aspect-ratio: 800 / 760;
+    container-type: inline-size;
+  }
+
+  /* the name sits behind the heart */
+  .name {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Great Vibes', 'Snell Roundhand', cursive;
+    font-size: 38cqw; line-height: 1;
+    color: #ffb3c4;
+    transform: rotate(-5deg);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .name span { display: inline-block; opacity: 0; }
+  .name.go span {
+    animation:
+      ink 1.6s cubic-bezier(.2,.8,.2,1) calc(.3s + var(--i) * .28s) both,
+      glow 4.5s ease-in-out calc(2.8s + var(--i) * .25s) infinite;
+  }
+  @keyframes ink {
+    from { opacity: 0; transform: translateY(.14em) scale(.7) rotate(-6deg); filter: blur(10px); }
+    to   { opacity: .95; transform: none; filter: blur(0); }
+  }
+  @keyframes glow {
+    0%, 100% { text-shadow: 0 0 .1em rgba(255,90,140,.6), 0 0 .38em rgba(255,40,90,.35); }
+    50%      { text-shadow: 0 0 .16em rgba(255,160,190,.9), 0 0 .6em rgba(255,50,100,.55); }
+  }
+
+  svg#heart {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    z-index: 2; overflow: visible;
+    filter: drop-shadow(0 0 10px rgba(255, 30, 60, .35));
+  }
+  svg#heart.beat { animation: beat 2.4s ease-in-out infinite; transform-origin: 50% 50%; }
+  @keyframes beat {
+    0%, 100% { transform: scale(1); }
+    14%      { transform: scale(1.02); }
+    28%      { transform: scale(1); }
+    42%      { transform: scale(1.012); }
+    56%      { transform: scale(1); }
+  }
+
+  .w {
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+    paint-order: stroke;
+    stroke: rgba(8, 1, 4, .8);
+    stroke-width: 2px;
+    stroke-linejoin: round;
+    opacity: 0;
+    transform: translateY(8px) scale(.8);
+    transform-box: fill-box;
+    transform-origin: center;
+    filter: blur(3px);
+    transition: opacity 1.4s ease, transform 1.4s cubic-bezier(.2,.8,.2,1), filter 1.4s ease;
+  }
+  svg#heart.go .w { opacity: var(--o, 1); transform: none; filter: none; }
+
+  button {
+    margin-top: 6px; font: inherit; font-size: .95rem;
+    color: #ffd9e2; background: rgba(255, 45, 74, .12);
+    border: 1px solid rgba(255, 110, 135, .5); border-radius: 999px;
+    padding: .35em 1.3em; cursor: pointer; z-index: 3;
+    transition: background .3s, border-color .3s;
+  }
+  button:hover { background: rgba(255, 45, 74, .3); border-color: #ff4d66; }
+  button:focus-visible { outline: 2px solid #f7cf9a; outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drift { display: none; }
+    .w { transition: none; }
+    svg#heart.beat { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="drift" id="drift" aria-hidden="true"></div>
+
+<main class="stage" id="stage">
+  <div class="name" id="name" aria-label="Hiba">
+    <span style="--i:0">H</span><span style="--i:1">i</span><span style="--i:2">b</span><span style="--i:3">a</span>
+  </div>
+  <svg id="heart" viewBox="0 0 800 760" role="img" aria-label="A heart filled with the words I love you in many languages"></svg>
+</main>
+
+<button id="replay" type="button">Replay</button>
+
+<script>
+(function () {
+  const phrases = [
+    'I love you','Je t’aime','Te quiero','أحبك','كنبغيك','Ti amo','Ich liebe dich','Eu te amo',
+    '愛してる','사랑해','我爱你','我愛你','Я тебя люблю','मुझे तुमसे प्यार है','Seni seviyorum',
+    'Σ’ αγαπώ','Ik hou van jou','Jag älskar dig','Kocham cię','אני אוהב אותך','دوستت دارم',
+    'مجھے تم سے محبت ہے','Nakupenda','ฉันรักเธอ','Anh yêu em','Aku cinta kamu','Mahal kita',
+    'Aloha au iā ʻoe','Tá grá agam duit','Dw i’n dy garu di','Minä rakastan sinua','Jeg elsker deg',
+    'Jeg elsker dig','Miluji tě','Szeretlek','Te iubesc','Я тебе кохаю','আমি তোমাকে ভালোবাসি',
+    'நான் உன்னை காதலிக்கிறேன்','Te amo','Ngiyakuthanda','Ég elska þig','Mi amas vin','T’estimo',
+    'Të dua','მიყვარხარ','Սիրում եմ քեզ','Saya cintakan awak','Ľúbim ťa','Ljubim te','Volim te',
+    'Волим те','Обичам те','Aš tave myliu','Es tevi mīlu','Ma armastan sind','Maite zaitut',
+    'Quérote','Inħobbok','Ech hunn dech gär','Ek is lief vir jou','Mo nifẹ rẹ','እወድሻለሁ',
+    'Waan ku jeclahay','నేను నిన్ను ప్రేమిస్తున్నాను','ನಾನು ನಿನ್ನನ್ನು ಪ್ರೀತಿಸುತ್ತೇನೆ',
+    'ഞാൻ നിന്നെ സ്നേഹിക്കുന്നു','मी तुझ्यावर प्रेम करतो','હું તને પ્રેમ કરું છું',
+    'ਮੈਂ ਤੈਨੂੰ ਪਿਆਰ ਕਰਦਾ ਹਾਂ','म तिमीलाई माया गर्छु','මම ඔබට ආදරෙයි','ខ្ញុំស្រលាញ់អ្នក',
+    'ຂ້ອຍຮັກເຈົ້າ','Би чамд хайртай','Мен сені жақсы көремін','Seni sevaman','Səni sevirəm',
+    'Ez te hez dikim','M renmen ou','Tha gaol agam ort','Da garout a ran','Ti tengu caru',
+    'Aroha au ki a koe','Ou te alofa ia te oe','Au domoni iko','Aku tresna karo kowe',
+    'Abdi bogoh ka anjeun','Nalingi yo','Ndiyakuthanda','Ndinokuda','Tia anao aho','Ndagukunda',
+    'איך האב דיך ליב','Ti vogghiu beni'
+  ];
+  const reds = ['#ff2d3f','#ff4757','#e5192e','#ff5c6c','#ff7a85','#d1122a'];
+  const pool = [11, 12, 12, 13, 13, 14, 14, 16, 18];
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('heart');
+  const stage = document.getElementById('stage');
+  const nameEl = document.getElementById('name');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const S = 315;                // heart scale in viewBox units
+  let beatTimer;
+
+  // is a point (viewBox coords) inside the heart curve?
+  function inside(x, y) {
+    const hx = (x - 400) / S, hy = (380 - y) / S + 0.125;
+    const a = hx * hx + hy * hy - 1;
+    return a * a * a - hx * hx * hy * hy * hy <= 0;
+  }
+  const rnd = (n) => Math.floor(Math.random() * n);
+  function shuffled() {
+    const a = phrases.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  function build() {
+    clearTimeout(beatTimer);
+    svg.classList.remove('go', 'beat');
+    svg.innerHTML = '';
+
+    const mobile = stage.clientWidth < 560;
+    const m = mobile ? 1.55 : 1;
+    const P = 21 * m;                // row pitch
+    const gapMin = 8 * m;
+    const box = P * 0.9;
+
+    // measure phrases once at font-size 100
+    const probe = document.createElementNS(NS, 'text');
+    probe.setAttribute('class', 'w');
+    probe.setAttribute('font-size', 100);
+    probe.style.visibility = 'hidden';
+    svg.appendChild(probe);
+    const w100 = {};
+    phrases.forEach((p) => { probe.textContent = p; w100[p] = probe.getComputedTextLength(); });
+    probe.remove();
+
+    let bag = shuffled();
+    const yTop = 44, yBot = 732;
+    const start = reduce ? 0 : 1800, rowStep = reduce ? 0 : 480, kStep = reduce ? 0 : 60;
+    let lastDelay = 0;
+
+    for (let y = yTop; y <= yBot; y += P) {
+      // horizontal runs inside the heart for this row
+      const runs = [];
+      let s = null;
+      for (let x = 0; x <= 800; x += 2) {
+        const ok = inside(x, y) && inside(x, y - box / 2) && inside(x, y + box / 2);
+        if (ok && s === null) s = x;
+        if ((!ok || x === 800) && s !== null) { runs.push([s + 5, x - 5]); s = null; }
+      }
+      const rank = (yBot - y) / P;           // bottom tip builds first
+
+      runs.forEach(([a, b]) => {
+        const L = b - a;
+        if (L < 36 * m) return;
+        const row = [];
+        let used = 0;
+        for (;;) {
+          if (bag.length < 24) bag = bag.concat(shuffled());
+          let picked = null;
+          for (let i = 0; i < 14 && !picked; i++) {
+            const ph = bag[i];
+            for (const fs of [pool[rnd(pool.length)] * m, pool[0] * m]) {
+              const w = w100[ph] * fs / 100;
+              if (used + w + (row.length ? gapMin : 0) <= L) { picked = { ph, fs, w, i }; break; }
+            }
+          }
+          if (!picked) break;
+          bag.splice(picked.i, 1);
+          used += picked.w + (row.length ? gapMin : 0);
+          row.push(picked);
+        }
+        if (!row.length) return;
+
+        const sumW = row.reduce((t, r) => t + r.w, 0);
+        let gap = row.length > 1 ? (L - sumW) / (row.length - 1) : 0;
+        gap = Math.min(gap, gapMin * 3);
+        const total = sumW + gap * (row.length - 1);
+        let x = a + (L - total) / 2;
+
+        row.forEach((r, k) => {
+          const t = document.createElementNS(NS, 'text');
+          t.setAttribute('class', 'w');
+          t.setAttribute('x', (x + r.w / 2).toFixed(1));
+          t.setAttribute('y', y.toFixed(1));
+          t.setAttribute('font-size', r.fs.toFixed(1));
+          const bright = Math.random() < 0.05;
+          t.setAttribute('fill', bright ? '#ffe3e8' : reds[rnd(reds.length)]);
+          t.style.setProperty('--o', bright ? 1 : (0.55 + Math.random() * 0.45).toFixed(2));
+          const d = start + rank * rowStep + k * kStep;
+          t.style.transitionDelay = d + 'ms';
+          lastDelay = Math.max(lastDelay, d);
+          t.textContent = r.ph;
+          svg.appendChild(t);
+          x += r.w + gap;
+        });
+      });
+    }
+
+    void svg.getBoundingClientRect();
+    requestAnimationFrame(() => svg.classList.add('go'));
+    beatTimer = setTimeout(() => svg.classList.add('beat'), lastDelay + 2000);
+  }
+
+  function replayName() {
+    nameEl.classList.remove('go');
+    void nameEl.offsetWidth;
+    nameEl.classList.add('go');
+  }
+
+  const drift = document.getElementById('drift');
+  for (let i = 0; i < 14; i++) {
+    const h = document.createElement('span');
+    h.textContent = '♥';
+    h.style.left = (Math.random() * 100) + '%';
+    h.style.fontSize = (10 + Math.random() * 22) + 'px';
+    h.style.animationDuration = (16 + Math.random() * 14) + 's';
+    h.style.animationDelay = (-Math.random() * 24) + 's';
+    drift.appendChild(h);
+  }
+
+  document.getElementById('replay').addEventListener('click', () => { replayName(); build(); });
+
+  let wasMobile = stage.clientWidth < 560, rt;
+  addEventListener('resize', () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => {
+      const mo = stage.clientWidth < 560;
+      if (mo !== wasMobile) { wasMobile = mo; build(); }
+    }, 250);
+  });
+
+  replayName();
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(build);
+})();
+</script>
+</body>
+</html>
